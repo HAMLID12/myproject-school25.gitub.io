@@ -1,1 +1,1 @@
-# myproject-school25.gitub.io
+permalink: /welcome.html
