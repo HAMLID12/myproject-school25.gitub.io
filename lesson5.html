@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Конструктор макета сайта</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            overflow: hidden;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Левая панель инструментов */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #ecf0f1;
+        }
+
+        .tool-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .tool-button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .tool-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .tool-button:active {
+            transform: translateY(0);
+        }
+
+        /* Панель свойств объекта (справа) */
+        .properties-panel {
+            width: 280px;
+            background-color: #ecf0f1;
+            padding: 20px;
+            overflow-y: auto;
+            border-left: 1px solid #ddd;
+        }
+
+        .property-group {
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .property-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .property-control {
+            margin-bottom: 15px;
+        }
+
+        .property-control:last-child {
+            margin-bottom: 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .color-picker {
+            width: 100%;
+            height: 40px;
+            padding: 0;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+
+        /* Основной холст */
+        .canvas-container {
+            flex-grow: 1;
+            position: relative;
+            background-color: #d9d9d9;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .canvas {
+            background-color: white;
+            position: relative;
+            width: 1200px;
+            height: 800px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+            transform-origin: center;
+            overflow: visible;
+            transition: transform 0.2s;
+        }
+
+        /* Диалоговое окно выбора фигур */
+        .shapes-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        .dialog-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .close-dialog {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #7f8c8d;
+            transition: color 0.3s;
+        }
+
+        .close-dialog:hover {
+            color: #e74c3c;
+        }
+
+        .shapes-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .shape-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .shape-item:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-3px);
+            border-color: #e6e6e6;
+        }
+
+        .shape-preview {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .shape-name {
+            font-size: 14px;
+            text-align: center;
+            color: #2c3e50;
+        }
+
+        /* Стили для объектов на холсте */
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+        }
+
+        .canvas-element.selected {
+            outline: 2px solid #3498db;
+        }
+
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #3498db;
+            border: 1px solid white;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .resize-handle.top-left {
+            top: -5px;
+            left: -5px;
+            cursor: nwse-resize;
+        }
+
+        .resize-handle.top-right {
+            top: -5px;
+            right: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.bottom-left {
+            bottom: -5px;
+            left: -5px;
+            cursor: nesw-resize;
+        }
+
+        .resize-handle.bottom-right {
+            bottom: -5px;
+            right: -5px;
+            cursor: nwse-resize;
+        }
+
+        .canvas-text {
+            min-width: 50px;
+            min-height: 20px;
+            padding: 5px;
+            border: 1px dashed transparent;
+            outline: none;
+        }
+
+        .canvas-text:hover {
+            border-color: #ddd;
+        }
+
+        .canvas-shape {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .canvas-image {
+            display: block;
+        }
+
+        /* Контролы масштабирования */
+        .zoom-controls {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .zoom-btn:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .zoom-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            padding: 0 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            min-width: 80px;
+        }
+
+        /* Стили для блокировки заднего фона при открытии диалога */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            backdrop-filter: blur(2px);
+        }
+
+        /* Скрытый элемент для загрузки файлов */
+        #file-input {
+            display: none;
+        }
+
+        /* Стили для кнопки удаления */
+        .delete-button {
+            background-color: #e74c3c;
+            margin-top: 10px;
+            transition: all 0.3s;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        /* Заголовок панели свойств */
+        .properties-header {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Сообщение при отсутствии выделенного элемента */
+        .no-selection-message {
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        /* Дополнительные стили для кнопок в панели свойств */
+        .property-btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .property-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .property-btn:hover {
+            background-color: #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Левая панель инструментов -->
+        <div class="sidebar">
+            <div class="logo">Конструктор макета</div>
+            <button class="tool-button" id="create-text">Создать текст</button>
+            <button class="tool-button" id="create-shape">Добавить фигуру</button>
+            <button class="tool-button" id="import-image">Импортировать изображение</button>
+            <input type="file" id="file-input" accept="image/*">
+        </div>
+
+        <!-- Основной холст -->
+        <div class="canvas-container" id="canvas-container">
+            <div class="canvas" id="canvas"></div>
+            
+            <!-- Контролы масштабирования -->
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoom-out">-</button>
+                <div class="zoom-level" id="zoom-level">100%</div>
+                <button class="zoom-btn" id="zoom-in">+</button>
+            </div>
+        </div>
+
+        <!-- Панель свойств объекта (справа) -->
+        <div class="properties-panel" id="properties-panel">
+            <div class="properties-header">Свойства элемента</div>
+            <div class="no-selection-message" id="no-selection-message">
+                Выберите элемент на холсте, чтобы настроить его свойства
+            </div>
+            <div id="properties-content"></div>
+        </div>
+    </div>
+
+    <!-- Диалоговое окно выбора фигур -->
+    <div class="overlay" id="overlay"></div>
+    <div class="shapes-dialog" id="shapes-dialog">
+        <div class="dialog-header">
+            <div class="dialog-title">Выберите фигуру</div>
+            <button class="close-dialog" id="close-shapes-dialog">&times;</button>
+        </div>
+        <div class="shapes-list">
+            <div class="shape-item" data-shape="rectangle">
+                <div class="shape-preview">
+                    <div style="width: 50px; height: 30px; background-color: #3498db;"></div>
+                </div>
+                <div class="shape-name">Прямоугольник</div>
+            </div>
+            <div class="shape-item" data-shape="circle">
+                <div class="shape-preview">
+                    <div style="width: 40px; height: 40px; background-color: #2ecc71; border-radius: 50%;"></div>
+                </div>
+                <div class="shape-name">Круг</div>
+            </div>
+            <div class="shape-item" data-shape="triangle">
+                <div class="shape-preview">
+                    <div style="width: 0; height: 0; border-left: 25px solid transparent; border-right: 25px solid transparent; border-bottom: 40px solid #e74c3c;"></div>
+                </div>
+                <div class="shape-name">Треугольник</div>
+            </div>
+            <div class="shape-item" data-shape="ellipse">
+                <div class="shape-preview">
+                    <div style="width: 50px; height: 30px; background-color: #f39c12; border-radius: 50%;"></div>
+                </div>
+                <div class="shape-name">Эллипс</div>
+            </div>
+            <div class="shape-item" data-shape="star">
+                <div class="shape-preview">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="#9b59b6">
+                        <path d="M12 0l3.09 6.26L22 7.27l-5 4.87 1.18 6.88L12 16l-6.18 3.02L7 12.14 2 7.27l6.91-1.01L12 0z"/>
+                    </svg>
+                </div>
+                <div class="shape-name">Звезда</div>
+            </div>
+            <div class="shape-item" data-shape="hexagon">
+                <div class="shape-preview">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="#1abc9c">
+                        <path d="M21,12l-4.5,7.8L7.5,19.8L3,12l4.5-7.8L16.5,4.2L21,12z"/>
+                    </svg>
+                </div>
+                <div class="shape-name">Шестиугольник</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Основные элементы интерфейса
+            const canvas = document.getElementById('canvas');
+            const canvasContainer = document.getElementById('canvas-container');
+            const propertiesPanel = document.getElementById('properties-panel');
+            const propertiesContent = document.getElementById('properties-content');
+            const noSelectionMessage = document.getElementById('no-selection-message');
+            const createTextBtn = document.getElementById('create-text');
+            const createShapeBtn = document.getElementById('create-shape');
+            const importImageBtn = document.getElementById('import-image');
+            const fileInput = document.getElementById('file-input');
+            const shapesDialog = document.getElementById('shapes-dialog');
+            const overlay = document.getElementById('overlay');
+            const closeShapesDialogBtn = document.getElementById('close-shapes-dialog');
+            const shapeItems = document.querySelectorAll('.shape-item');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const zoomLevelDisplay = document.getElementById('zoom-level');
+
+            // Состояние приложения
+            let selectedElement = null;
+            let isDragging = false;
+            let isResizing = false;
+            let currentResizeHandle = '';
+            let startX, startY;
+            let startWidth, startHeight;
+            let startLeft, startTop;
+            let elements = [];
+            let nextId = 1;
+            let zoomLevel = 1; // 100%
+            
+            // Инициализация холста
+            function initCanvas() {
+                canvas.addEventListener('click', handleCanvasClick);
+                canvas.addEventListener('mousedown', handleElementMouseDown);
+            }
+            
+            // Обработка клика по холсту (снятие выделения)
+            function handleCanvasClick(e) {
+                if (e.target === canvas) {
+                    deselectElement();
+                }
+            }
+            
+            // Обработка кнопок масштабирования
+            zoomInBtn.addEventListener('click', () => {
+                zoomLevel = Math.min(zoomLevel + 0.1, 3); // Максимум 300%
+                updateZoom();
+            });
+            
+            zoomOutBtn.addEventListener('click', () => {
+                zoomLevel = Math.max(zoomLevel - 0.1, 0.3); // Минимум 30%
+                updateZoom();
+            });
+            
+            function updateZoom() {
+                canvas.style.transform = `scale(${zoomLevel})`;
+                zoomLevelDisplay.textContent = `${Math.round(zoomLevel * 100)}%`;
+            }
+            
+            // Обработчики событий для кнопок создания элементов
+            createTextBtn.addEventListener('click', createTextElement);
+            createShapeBtn.addEventListener('click', showShapesDialog);
+            importImageBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', importImage);
+            closeShapesDialogBtn.addEventListener('click', closeShapesDialog);
+            
+            // Перебираем элементы фигур в диалоговом окне и назначаем обработчики
+            shapeItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const shapeType = this.getAttribute('data-shape');
+                    createShapeElement(shapeType);
+                    closeShapesDialog();
+                });
+            });
+            
+            // ----------------------------------------
+            // Создание элементов
+            // ----------------------------------------
+            
+            // Создание текстового элемента
+            function createTextElement() {
+                const id = `element-${nextId++}`;
+                const textElement = document.createElement('div');
+                textElement.id = id;
+                textElement.className = 'canvas-element canvas-text';
+                textElement.contentEditable = true;
+                textElement.style.left = '100px';
+                textElement.style.top = '100px';
+                textElement.style.color = '#000000';
+                textElement.style.fontSize = '16px';
+                textElement.style.fontFamily = 'Arial';
+                textElement.style.width = 'auto';
+                textElement.style.minWidth = '100px';
+                textElement.style.height = 'auto';
+                textElement.style.minHeight = '30px';
+                textElement.innerText = 'Двойной клик для редактирования';
+                
+                canvas.appendChild(textElement);
+                
+                const elementData = {
+                    id: id,
+                    type: 'text',
+                    element: textElement
+                };
+                
+                elements.push(elementData);
+                selectElement(textElement);
+                
+                return textElement;
+            }
+            
+            // Создание элемента-фигуры
+            function createShapeElement(shapeType) {
+                const id = `element-${nextId++}`;
+                const shapeElement = document.createElement('div');
+                shapeElement.id = id;
+                shapeElement.className = 'canvas-element canvas-shape';
+                shapeElement.style.left = '100px';
+                shapeElement.style.top = '100px';
+                shapeElement.style.width = '100px';
+                shapeElement.style.height = '100px';
+                
+                let shapeStyle = '';
+                let backgroundColor = getRandomColor();
+                
+                switch(shapeType) {
+                    case 'rectangle':
+                        shapeStyle = `background-color: ${backgroundColor};`;
+                        break;
+                    case 'circle':
+                        shapeStyle = `background-color: ${backgroundColor}; border-radius: 50%;`;
+                        break;
+                    case 'triangle':
+                        // Создаем SVG для треугольника
+                        shapeElement.innerHTML = `
+                            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <polygon points="50,0 0,100 100,100" fill="${backgroundColor}" />
+                            </svg>
+                        `;
+                        break;
+                    case 'ellipse':
+                        shapeStyle = `background-color: ${backgroundColor}; border-radius: 50%;`;
+                        shapeElement.style.height = '60px'; // Эллипс ниже чем ширина
+                        break;
+                    case 'star':
+                        // Создаем SVG для звезды
+                        shapeElement.innerHTML = `
+                            <svg width="100%" height="100%" viewBox="0 0 50 50" preserveAspectRatio="none">
+                                <polygon points="25,5 10,40 40,20 10,20 40,40" fill="${backgroundColor}" />
+                            </svg>
+                        `;
+                        break;
+                    case 'hexagon':
+                        // Создаем SVG для шестиугольника
+                        shapeElement.innerHTML = `
+                            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <polygon points="25,0 75,0 100,50 75,100 25,100 0,50" fill="${backgroundColor}" />
+                            </svg>
+                        `;
+                        break;
+                    default:
+                        shapeStyle = `background-color: ${backgroundColor};`;
+                }
+                
+                if (shapeStyle) {
+                    shapeElement.style.cssText += shapeStyle;
+                }
+                
+                canvas.appendChild(shapeElement);
+                
+                const elementData = {
+                    id: id,
+                    type: 'shape',
+                    shape: shapeType,
+                    element: shapeElement,
+                    color: backgroundColor
+                };
+                
+                elements.push(elementData);
+                selectElement(shapeElement);
+                
+                return shapeElement;
+            }
+            
+            // Импорт изображения
+            function importImage(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        const id = `element-${nextId++}`;
+                        const imageElement = document.createElement('img');
+                        imageElement.id = id;
+                        imageElement.className = 'canvas-element canvas-image';
+                        imageElement.src = event.target.result;
+                        imageElement.style.left = '100px';
+                        imageElement.style.top = '100px';
+                        imageElement.style.width = '200px';
+                        imageElement.style.height = 'auto';
+                        
+                        canvas.appendChild(imageElement);
+                        
+                        const elementData = {
+                            id: id,
+                            type: 'image',
+                            element: imageElement
+                        };
+                        
+                        elements.push(elementData);
+                        selectElement(imageElement);
+                        
+                        // Сбрасываем input, чтобы можно было загрузить тот же файл повторно
+                        fileInput.value = '';
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // ----------------------------------------
+            // Обработка выделения и перемещения элементов
+            // ----------------------------------------
+            
+            // Обработка нажатия на элемент
+            function handleElementMouseDown(e) {
+                if (e.target.classList.contains('resize-handle')) {
+                    // Начинаем изменение размера
+                    startResizing(e);
+                    return;
+                }
+                
+                const element = findElementFromEvent(e);
+                if (!element) return;
+                
+                // Если нажали на элемент - готовимся к перетаскиванию
+                if (element !== canvas) {
+                    if (element !== selectedElement) {
+                        selectElement(element);
+                    }
+                    
+                    startDragging(e);
+                }
+            }
+            
+            // Начало перетаскивания элемента
+            function startDragging(e) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const style = window.getComputedStyle(selectedElement);
+                startLeft = parseFloat(style.left);
+                startTop = parseFloat(style.top);
+                
+                document.addEventListener('mousemove', handleDragging);
+                document.addEventListener('mouseup', stopDragging);
+            }
+            
+            // Процесс перетаскивания
+            function handleDragging(e) {
+                if (!isDragging) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                selectedElement.style.left = `${startLeft + dx}px`;
+                selectedElement.style.top = `${startTop + dy}px`;
+            }
+            
+            // Окончание перетаскивания
+            function stopDragging() {
+                isDragging = false;
+                document.removeEventListener('mousemove', handleDragging);
+                document.removeEventListener('mouseup', stopDragging);
+            }
+            
+            // Начало изменения размера
+            function startResizing(e) {
+                isResizing = true;
+                currentResizeHandle = e.target.className.split(' ')[1]; // получаем направление (top-left, bottom-right и т.д.)
+                startX = e.clientX;
+                startY = e.clientY;
+                
+                const style = window.getComputedStyle(selectedElement);
+                startLeft = parseFloat(style.left);
+                startTop = parseFloat(style.top);
+                startWidth = selectedElement.offsetWidth;
+                startHeight = selectedElement.offsetHeight;
+                
+                document.addEventListener('mousemove', handleResizing);
+                document.addEventListener('mouseup', stopResizing);
+            }
+            
+            // Процесс изменения размера
+            function handleResizing(e) {
+                if (!isResizing) return;
+                
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                
+                let newWidth = startWidth;
+                let newHeight = startHeight;
+                let newLeft = startLeft;
+                let newTop = startTop;
+                
+                if (currentResizeHandle.includes('right')) {
+                    newWidth = startWidth + dx;
+                } 
+                if (currentResizeHandle.includes('bottom')) {
+                    newHeight = startHeight + dy;
+                }
+                if (currentResizeHandle.includes('left')) {
+                    newWidth = startWidth - dx;
+                    newLeft = startLeft + dx;
+                }
+                if (currentResizeHandle.includes('top')) {
+                    newHeight = startHeight - dy;
+                    newTop = startTop + dy;
+                }
+                
+                // Минимальные размеры
+                const minSize = 20;
+                if (newWidth >= minSize) {
+                    selectedElement.style.width = `${newWidth}px`;
+                    selectedElement.style.left = `${newLeft}px`;
+                }
+                if (newHeight >= minSize) {
+                    selectedElement.style.height = `${newHeight}px`;
+                    selectedElement.style.top = `${newTop}px`;
+                }
+                
+                // Обновляем панель свойств с новыми размерами
+                updatePropertiesPanel();
+            }
+            
+            // Окончание изменения размера
+            function stopResizing() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleResizing);
+                document.removeEventListener('mouseup', stopResizing);
+            }
+            
+            // Поиск элемента из события
+            function findElementFromEvent(e) {
+                let target = e.target;
+                
+                // Проверяем, является ли цель или её родители элементом canvas-element
+                while (target && !target.classList.contains('canvas-element')) {
+                    if (target === canvas) return target;
+                    target = target.parentElement;
+                }
+                
+                return target;
+            }
+            
+            // ----------------------------------------
+            // Работа с выделением элемента
+            // ----------------------------------------
+            
+            // Выделение элемента
+            function selectElement(element) {
+                if (selectedElement) {
+                    deselectElement();
+                }
+                
+                selectedElement = element;
+                element.classList.add('selected');
+                
+                // Добавляем маркеры-хендлеры для изменения размера
+                addResizeHandles(element);
+                
+                // Обновляем панель свойств
+                updatePropertiesPanel();
+                noSelectionMessage.style.display = 'none';
+            }
+            
+            // Снятие выделения
+            function deselectElement() {
+                if (selectedElement) {
+                    selectedElement.classList.remove('selected');
+                    removeResizeHandles();
+                    selectedElement = null;
+                    noSelectionMessage.style.display = 'block';
+                    propertiesContent.innerHTML = '';
+                }
+            }
+            
+            // Добавление маркеров-хендлеров для изменения размера
+            function addResizeHandles(element) {
+                const handles = ['top-left', 'top-right', 'bottom-left', 'bottom-right'];
+                
+                // Сначала удаляем существующие хендлеры, если они есть
+                removeResizeHandles();
+                
+                // Затем создаем новые
+                handles.forEach(position => {
+                    const handle = document.createElement('div');
+                    handle.className = `resize-handle ${position}`;
+                    element.appendChild(handle);
+                });
+            }
+            
+            // Удаление маркеров-хендлеров
+            function removeResizeHandles() {
+                const handles = document.querySelectorAll('.resize-handle');
+                handles.forEach(handle => handle.remove());
+            }
+            
+            // ----------------------------------------
+            // Обновление панели свойств
+            // ----------------------------------------
+            
+            // Обновление панели свойств в соответствии с выделенным элементом
+            function updatePropertiesPanel() {
+                if (!selectedElement) return;
+                
+                propertiesContent.innerHTML = '';
+                
+                // Определяем тип элемента
+                const elementData = elements.find(e => e.element === selectedElement);
+                if (!elementData) return;
+                
+                // Общие свойства для всех элементов
+                const sizeGroup = createPropertyGroup('Размеры');
+                
+                // Получаем текущие размеры
+                const width = selectedElement.offsetWidth;
+                const height = selectedElement.offsetHeight;
+                
+                // Добавляем контролы для размеров
+                const widthControl = createPropertyControl('Ширина (px)', 'number', 'width-input', width);
+                const heightControl = createPropertyControl('Высота (px)', 'number', 'height-input', height);
+                
+                sizeGroup.appendChild(widthControl);
+                sizeGroup.appendChild(heightControl);
+                propertiesContent.appendChild(sizeGroup);
+                
+                // Добавляем контролы в зависимости от типа элемента
+                if (elementData.type === 'text') {
+                    // Группа свойств шрифта
+                    const fontGroup = createPropertyGroup('Шрифт');
+                    
+                    // Текущие стили
+                    const style = window.getComputedStyle(selectedElement);
+                    const fontSize = parseInt(style.fontSize);
+                    const fontFamily = style.fontFamily.split(',')[0].replace(/['"]+/g, '');
+                    const color = rgbToHex(style.color);
+                    
+                    // Контролы для свойств текста
+                    const fontSizeControl = createPropertyControl('Размер шрифта (px)', 'number', 'font-size-input', fontSize);
+                    const fontFamilyControl = createFontFamilyControl(fontFamily);
+                    const colorControl = createColorControl('Цвет текста', 'text-color-input', color);
+                    
+                    fontGroup.appendChild(fontSizeControl);
+                    fontGroup.appendChild(fontFamilyControl);
+                    fontGroup.appendChild(colorControl);
+                    propertiesContent.appendChild(fontGroup);
+                    
+                    // Обработчики изменений
+                    document.getElementById('font-size-input').addEventListener('change', function() {
+                        selectedElement.style.fontSize = this.value + 'px';
+                    });
+                    
+                    document.getElementById('font-family-input').addEventListener('change', function() {
+                        selectedElement.style.fontFamily = this.value;
+                    });
+                    
+                    document.getElementById('text-color-input').addEventListener('change', function() {
+                        selectedElement.style.color = this.value;
+                    });
+                }
+                
+                if (elementData.type === 'shape') {
+                    // Группа свойств фигуры
+                    const shapeGroup = createPropertyGroup('Фигура');
+                    
+                    // Получаем цвет фигуры
+                    let color = elementData.color || '#3498db';
+                    
+                    // Контрол для изменения цвета фигуры
+                    const colorControl = createColorControl('Цвет фигуры', 'shape-color-input', color);
+                    
+                    shapeGroup.appendChild(colorControl);
+                    propertiesContent.appendChild(shapeGroup);
+                    
+                    // Обработчик изменения цвета
+                    document.getElementById('shape-color-input').addEventListener('change', function() {
+                        const newColor = this.value;
+                        elementData.color = newColor;
+                        
+                        // Обновляем цвет в зависимости от типа фигуры
+                        if (elementData.shape === 'rectangle' || elementData.shape === 'circle' || elementData.shape === 'ellipse') {
+                            selectedElement.style.backgroundColor = newColor;
+                        } else {
+                            // Для SVG-фигур (треугольник, звезда, шестиугольник)
+                            const svgPolygon = selectedElement.querySelector('polygon');
+                            if (svgPolygon) {
+                                svgPolygon.setAttribute('fill', newColor);
+                            }
+                        }
+                    });
+                }
+                
+                if (elementData.type === 'image') {
+                    // Группа свойств изображения
+                    const imageGroup = createPropertyGroup('Изображение');
+                    
+                    // Контрол для сохранения пропорций
+                    const aspectRatioControl = document.createElement('div');
+                    aspectRatioControl.className = 'property-control';
+                    
+                    const aspectRatioLabel = document.createElement('label');
+                    aspectRatioLabel.innerText = 'Сохранять пропорции:';
+                    
+                    const aspectRatioToggle = document.createElement('input');
+                    aspectRatioToggle.type = 'checkbox';
+                    aspectRatioToggle.id = 'aspect-ratio-toggle';
+                    aspectRatioToggle.checked = selectedElement.style.height === 'auto';
+                    
+                    aspectRatioLabel.appendChild(aspectRatioToggle);
+                    aspectRatioControl.appendChild(aspectRatioLabel);
+                    
+                    imageGroup.appendChild(aspectRatioControl);
+                    propertiesContent.appendChild(imageGroup);
+                    
+                    // Обработчик изменения сохранения пропорций
+                    aspectRatioToggle.addEventListener('change', function() {
+                        if (this.checked) {
+                            // Сохраняем соотношение сторон (авто-высота)
+                            selectedElement.style.height = 'auto';
+                        } else {
+                            // Фиксируем текущую высоту
+                            selectedElement.style.height = selectedElement.offsetHeight + 'px';
+                        }
+                    });
+                }
+                
+                // Обработчики изменения размеров для всех элементов
+                document.getElementById('width-input').addEventListener('change', function() {
+                    selectedElement.style.width = this.value + 'px';
+                });
+                
+                document.getElementById('height-input').addEventListener('change', function() {
+                    selectedElement.style.height = this.value + 'px';
+                });
+                
+                // Кнопка удаления
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.innerText = 'Удалить элемент';
+                deleteButton.addEventListener('click', deleteSelectedElement);
+                
+                propertiesContent.appendChild(deleteButton);
+            }
+            
+            // Удаление выбранного элемента
+            function deleteSelectedElement() {
+                if (selectedElement) {
+                    // Находим индекс элемента в массиве
+                    const elementIndex = elements.findIndex(e => e.element === selectedElement);
+                    
+                    if (elementIndex !== -1) {
+                        // Удаляем из DOM
+                        selectedElement.remove();
+                        
+                        // Удаляем из массива
+                        elements.splice(elementIndex, 1);
+                        
+                        // Сбрасываем выделение
+                        deselectElement();
+                    }
+                }
+            }
+            
+            // Создание группы свойств
+            function createPropertyGroup(title) {
+                const group = document.createElement('div');
+                group.className = 'property-group';
+                
+                const titleElement = document.createElement('div');
+                titleElement.className = 'property-title';
+                titleElement.innerText = title;
+                
+                group.appendChild(titleElement);
+                return group;
+            }
+            
+            // Создание контрола свойства
+            function createPropertyControl(labelText, inputType, inputId, value) {
+                const control = document.createElement('div');
+                control.className = 'property-control';
+                
+                const label = document.createElement('label');
+                label.innerText = labelText;
+                
+                const input = document.createElement('input');
+                input.type = inputType;
+                input.id = inputId;
+                input.value = value;
+                if (inputType === 'number') {
+                    input.min = 0;
+                }
+                
+                control.appendChild(label);
+                control.appendChild(input);
+                
+                return control;
+            }
+            
+            // Создание контрола выбора цвета
+            function createColorControl(labelText, inputId, value) {
+                const control = document.createElement('div');
+                control.className = 'property-control';
+                
+                const label = document.createElement('label');
+                label.innerText = labelText;
+                
+                const input = document.createElement('input');
+                input.type = 'color';
+                input.className = 'color-picker';
+                input.id = inputId;
+                input.value = value;
+                
+                control.appendChild(label);
+                control.appendChild(input);
+                
+                return control;
+            }
+            
+            // Создание контрола выбора семейства шрифта
+            function createFontFamilyControl(currentFont) {
+                const control = document.createElement('div');
+                control.className = 'property-control';
+                
+                const label = document.createElement('label');
+                label.innerText = 'Шрифт:';
+                
+                const select = document.createElement('select');
+                select.id = 'font-family-input';
+                
+                const fonts = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia', 'Tahoma', 'Trebuchet MS'];
+                
+                fonts.forEach(font => {
+                    const option = document.createElement('option');
+                    option.value = font;
+                    option.innerText = font;
+                    if (font === currentFont) {
+                        option.selected = true;
+                    }
+                    select.appendChild(option);
+                });
+                
+                control.appendChild(label);
+                control.appendChild(select);
+                
+                return control;
+            }
+            
+            // ----------------------------------------
+            // Диалоговое окно выбора фигур
+            // ----------------------------------------
+            
+            // Показать диалог выбора фигур
+            function showShapesDialog() {
+                shapesDialog.style.display = 'block';
+                overlay.style.display = 'block';
+            }
+            
+            // Закрыть диалог выбора фигур
+            function closeShapesDialog() {
+                shapesDialog.style.display = 'none';
+                overlay.style.display = 'none';
+            }
+            
+            // ----------------------------------------
+            // Вспомогательные функции
+            // ----------------------------------------
+            
+            // Преобразование RGB в HEX
+            function rgbToHex(rgb) {
+                if (rgb.startsWith('#')) return rgb;
+                
+                // Извлекаем числа из строки RGB
+                const rgbMatch = rgb.match(/^rgb\s*$\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*$$/i);
+                if (!rgbMatch) return '#000000';
+                
+                function hex(x) {
+                    return ('0' + parseInt(x).toString(16)).slice(-2);
+                }
+                
+                return '#' + hex(rgbMatch[1]) + hex(rgbMatch[2]) + hex(rgbMatch[3]);
+            }
+            
+            // Генерация случайного цвета
+            function getRandomColor() {
+                const letters = '0123456789ABCDEF';
+                let color = '#';
+                for (let i = 0; i < 6; i++) {
+                    color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+            }
+            
+            // Инициализация приложения
+            initCanvas();
+        });
+    </script>
+</body>
+</html>
