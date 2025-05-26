@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX/UI Design | Урок 3</title>
+    <style>
+        /* Основные стили */
+        body {
+            font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            background-image: radial-gradient(circle at 25% 50%, #4a4a8a 0%, #1a1a2e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Контейнер */
+        .container {
+            max-width: 900px;
+            width: 90%;
+            margin: 40px auto;
+            position: relative;
+        }
+        
+        /* Карточка с контентом */
+        .card {
+            background-color: white;
+            padding: 50px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+        }
+        
+        /* Шапка */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+        
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            border-radius: 2px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 30px;
+            background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+            border-radius: 4px;
+        }
+        
+        /* Основной контент */
+        p {
+            margin-bottom: 25px;
+            font-size: 1.15rem;
+            color: #4a4a4a;
+        }
+        
+        /* Списки */
+        ul {
+            margin: 25px 0;
+            padding-left: 0;
+        }
+        
+        li {
+            margin-bottom: 15px;
+            position: relative;
+            list-style-type: none;
+            padding-left: 40px;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        li:before {
+            content: "•";
+            color: #ff7e5f;
+            position: absolute;
+            left: 15px;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        /* Особые блоки */
+        .highlight {
+            background: linear-gradient(135deg, rgba(254, 180, 123, 0.1) 0%, rgba(255, 126, 95, 0.1) 100%);
+            padding: 25px 30px;
+            border-radius: 12px;
+            border-left: 4px solid #ff7e5f;
+            margin: 30px 0;
+        }
+        
+        .highlight p {
+            margin-bottom: 15px;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 8px;
+        }
+        
+        /* Кнопки */
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
+        
+        .nav-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff7e5f, #feb47b);
+            color: white;
+            padding: 15px 40px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(255, 126, 95, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(255, 126, 95, 0.5);
+        }
+        
+        .nav-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .nav-btn.back {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            box-shadow: 0 8px 15px rgba(108, 117, 125, 0.4);
+        }
+        
+        .nav-btn.back:hover {
+            box-shadow: 0 12px 20px rgba(108, 117, 125, 0.5);
+        }
+        
+        /* Декоративные элементы */
+        .decor-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 126, 95, 0.1);
+            z-index: 0;
+        }
+        
+        .circle-1 {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -150px;
+        }
+        
+        .circle-2 {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -100px;
+            background: rgba(254, 180, 123, 0.1);
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card {
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .card {
+                padding: 30px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .nav-btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .card {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h1::after {
+                width: 70px;
+                bottom: -5px;
+            }
+            
+            p, li {
+                font-size: 1rem;
+            }
+            
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="decor-circle circle-1"></div>
+        <div class="decor-circle circle-2"></div>
+        
+        <div class="card">
+            <div class="header">
+                <h1>Что такое UX/UI и как они превращают сайт в шедевр</h1>
+            </div>
+            
+            <h2>1. Введение</h2>
+            <p>Современный веб-дизайн — это не просто «красивая картинка», а продуманный опыт, который вдохновляет, направляет и очаровывает пользователей. Без грамотного UX/UI даже самый полезный контент рискует остаться незамеченным.</p>
+            <p>Давайте разберёмся, как гармония функциональности (UX) и эстетики (UI) создаёт по-настоящему великолепные цифровые продукты.</p>
+            
+            <h2>2. UX (User Experience) — искусство удобства</h2>
+            <p>UX — это магия, которая делает взаимодействие с сайтом лёгким и приятным.</p>
+            
+            <div class="highlight">
+                <p><strong>Сильные стороны хорошего UX:</strong></p>
+                <p><span class="emoji">✨</span> <strong>Интуитивная навигация</strong><br>
+                → Пользователь находит нужное за 3 клика, а не блуждает в лабиринте меню.</p>
+                
+                <p><span class="emoji">✨</span> <strong>Эмоциональный комфорт</strong><br>
+                → Чёткие подсказки, предсказуемые действия — нет стресса от «а что будет, если я нажму сюда?».</p>
+                
+                <p><span class="emoji">✨</span> <strong>Эффективность</strong><br>
+                → Заказ пиццы за 30 секунд или запись к врачу в 2 шага — вот идеал UX.</p>
+            </div>
+            
+            <p><strong>Примеры гениального UX:</strong></p>
+            <ul>
+                <li>Airbnb — поиск жилья с умными фильтрами</li>
+                <li>Spotify — персонализированные плейлисты</li>
+                <li>Duolingo — игровая система обучения без напряжения</li>
+            </ul>
+            
+            <h2>3. UI (User Interface) — визуальная поэзия</h2>
+            <p>UI — это то, что заставляет сказать «Вау!» при первом взгляде на сайт.</p>
+            
+            <div class="highlight">
+                <p><strong>Сильные стороны хорошего UI:</strong></p>
+                <p><span class="emoji">🎨</span> <strong>Эстетическая гармония</strong><br>
+                → Сочетание цветов по правилам колористики (как в природе: небо + песок, лес + трава).</p>
+                
+                <p><span class="emoji">🎨</span> <strong>Тактильные удовольствия</strong><br>
+                → Кнопки, которые «хочется нажать», плавные анимации, приятные жесты.</p>
+                
+                <p><span class="emoji">🎨</span> <strong>Чёткая иерархия</strong><br>
+                → Важные элементы сразу бросаются в глаза (как заголовки в газете).</p>
+            </div>
+            
+            <p><strong>Примеры вдохновляющего UI:</strong></p>
+            <ul>
+                <li>Apple.com — лаконичность + фирменная анимация</li>
+                <li>Notion — кастомизируемые блоки с мягкими оттенками</li>
+                <li>Headspace — иллюстрации, которые снижают тревожность</li>
+            </ul>
+            
+            <h2>4. Почему UX/UI — как воздух для сайта?</h2>
+            <ul>
+                <li><strong>✅ 1. Удержание внимания</strong><br>
+                → Человек остаётся, когда интерфейс интуитивен и радует глаз.</li>
+                
+                <li><strong>✅ 2. Эмоциональная связь</strong><br>
+                → Красивый дизайн вызывает доверие (как упаковка дорогого парфюма).</li>
+                
+                <li><strong>✅ 3. Конверсия в действия</strong><br>
+                → Продуманный UX ведёт к кнопке «Купить» как река к океану.</li>
+                
+                <li><strong>✅ 4. Узнаваемость бренда</strong><br>
+                → Запоминающийся UI (как красный цвет Netflix или шрифт Coca-Cola).</li>
+                
+                <li><strong>✅ 5. Адаптивность</strong><br>
+                → Хороший дизайн работает на телефоне, планшете и smart-холодильнике.</li>
+            </ul>
+            
+            <h2>5. Как создать идеальный UX/UI?</h2>
+            <p><strong>Советы от гуру дизайна:</strong></p>
+            <div class="highlight">
+                <p><strong>Начните с пользователя</strong><br>
+                → Кто он? Чего боится? Что любит? (Персонажи > абстрактные «ЦА»).</p>
+                
+                <p><strong>Прототип > Красота</strong><br>
+                → Сначала набросайте «проволочный каркас» (wireframe), потом добавляйте цвета.</p>
+                
+                <p><strong>Тестируйте на реальных людях</strong><br>
+                → Дайте бабушке заказать пиццу через ваш интерфейс. Где она запнётся?</p>
+                
+                <p><strong>Украшайте осознанно</strong><br>
+                → Каждая иконка, отступ и тень должны работать на удобство.</p>
+                
+                <p><strong>Вдохновляйтесь природой</strong><br>
+                → Лучший UI — солнечный свет на морских волнах (градиенты, мягкие формы).</p>
+            </div>
+            
+            <h2>6. Вдохновляющие примеры</h2>
+            <p><strong>Сайты-образцы:</strong></p>
+            <ul>
+                <li>Bruno Simon (3D-портфолио) — играет, как консоль</li>
+                <li>Cuberto — анимации, от которых мурашки</li>
+                <li>YourType — интерактивный тест шрифтов с элементами геймификации</li>
+            </ul>
+            
+            <p><strong>Книги для прокачки:</strong></p>
+            <ul>
+                <li>«Не заставляйте меня думать» (Стив Круг) — UX-библия</li>
+                <li>«Эмоциональный веб-дизайн» (Аарон Уолтер) — как вызывать восторг</li>
+                <li>«Живой типографики» (Эрик Шпикерманн) — магия шрифтов</li>
+            </ul>
+            
+            <h2>7. Заключение</h2>
+            <p>UX/UI — это не «правильно/неправильно», а «цепляет/не цепляет».<br>
+            Сайт без продуманного дизайна — как ресторан с гениальным шеф-поваром, но нелепой подачей блюд.</p>
+            
+            <div class="highlight">
+                <p><strong>Хотите, чтобы вашим продуктом наслаждались?</strong><br>
+                → Делайте UX понятным, как детская книжка.<br>
+                → Делайте UI обволакивающим, как музыка в дорогом авто.</p>
+            </div>
+            
+            <p><strong>💡 Философия в одной фразе:</strong><br>
+            «Хороший дизайн незаметен. Великий дизайн — ощущается сердцем»<br>
+            Творите с душой — и пользователи ответят любовью! 🌟</p>
+            
+            <div class="btn-container">
+                <a href="lesson2.html" class="nav-btn back">← Назад</a>
+                <a href="lesson4.html" class="nav-btn">Далее →</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
